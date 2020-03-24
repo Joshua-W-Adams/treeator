@@ -231,9 +231,9 @@ function _show(ele) {
 
 function _toggleTreeView(options, tableElement) {
   const cnf = {
-    collapseIcon: options.tree.rows.collapseIcon || '▾'
-    , expandIcon: options.tree.rows.expandIcon || '▸'
-  }
+    collapseIcon: options.tree.rows.collapseIcon || '▾',
+    expandIcon: options.tree.rows.expandIcon || '▸'
+  };
   // get currently clicked element in table
   const target = tableElement.target; // eslint-disable-line prefer-destructuring
   // get parent table row
@@ -307,7 +307,7 @@ function _displayTree(treeRoot, divId, searchDivId, options) {
   const input = document.getElementById(searchDivId);
   // add filtered tree if applicable
   if (input && input.value) {
-    searchTable(searchDivId, 'treejs-tree', divId, options);
+    searchTable(searchDivId, 'treejs-tree', divId, options); // eslint-disable-line no-use-before-define
   } else {
     // add tree to DOM
     div.appendChild(treeRoot);
@@ -338,9 +338,9 @@ function _addHeaders(options, treeRoot) {
 }
 
 function _addCells(options, row, columns, tableRow, expand) {
-  let cnf = {
+  const cnf = {
     expandIcon: options.tree.rows.expandIcon || '▸'
-  }
+  };
   for (let n = 0; n < columns.length; n++) {
     const tableCell = _addElement(tableRow, 'td');
     // add indent or chevron into cell
@@ -355,7 +355,7 @@ function _addCells(options, row, columns, tableRow, expand) {
         tableCellSpan.innerHTML = cnf.expandIcon;
       }
       // set tablecell indent
-      tableCell.style.paddingLeft = `${row.DATA_DEPTH * 15}px`
+      tableCell.style.paddingLeft = `${row.DATA_DEPTH * 15}px`;
       // add toggle function to tree elements
       tableCell.onclick = function cb(e) {
         _toggleTreeView(options, e);
@@ -378,7 +378,7 @@ function _addRowEvents(tableRow, options) {
     onClick: options.tree.rows.onClick || _onClickDefault,
     onDblClick: options.tree.rows.onDblClick || _onDblClickDefault,
     onHover: options.tree.rows.onHover || _onHoverDefault,
-    onHoverOut: options.tree.rows.onHoverOut || function () {}
+    onHoverOut: options.tree.rows.onHoverOut || function cb() {}
   };
   tableRow.onclick = function onclick() {
     return cnf.onClick(tableRow);
