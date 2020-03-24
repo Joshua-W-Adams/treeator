@@ -7,10 +7,68 @@
     <!-- <link rel="stylesheet" type="text/css" href="dist/<some_css_file>.css"/> -->
   </head>
   <body spellcheck="false">
-    <div>Hello World</div>
+    <!-- load input element here -->
+    <div id="treeSearch"></div>
+    <!-- load tree element here -->
+    <div id="tree"></div>
   </body>
 </html>
 <!-- <script defer type="module" src="src/js/module.js"></script> -->
 <script type="module">
-  // Some JavaScript Code
+
+  import treejs from '/src/js/module.js';
+  import inputjs from '/node_modules/@joshadams/inputjs/src/js/module.js';
+
+  let data = [];
+
+  for (let i = 0; i < 10; i++) {
+    data.push({DATA_DEPTH: 0, ITEM: "Montara FPSO", DESCRIPTION: "Facility"});
+    data.push({DATA_DEPTH: 1, ITEM: "Cargo Oil", DESCRIPTION: "System"});
+    data.push({DATA_DEPTH: 2, ITEM: "33-ZX-012 6C Cargo Oil Tank", DESCRIPTION: "Loop - Tank - 6C Cargo Oil Tank"});
+  }
+
+  const treeOptions = {
+    tree: {
+      div: 'tree',
+      data: data,
+      renderer: null,
+      columns: {
+        sourceNames: ["ITEM", "DESCRIPTION"],
+        newNames: ["ITEM", "DESCRIPTION"],
+        widths: [250, 300],
+        alignment: ["left", "left"]
+      },
+      rows: {
+        collapseIcon: null,
+        expandIcon: null,
+        renderer: null,
+        onClick: null,
+        onDblClick: null,
+        onHover: null,
+        onHoverOut: null
+      }
+    },
+    search: {
+      div: "treeSearch"
+    }
+  }
+
+  const inputOptions = {
+    div: 'treeSearch',
+    renderer: null,
+    onClick: null,
+    onFocusOut: null,
+    onHover: null,
+    onKeyUp: function () {
+      treejs.searchTable('inputjs-container__input', 'treejs-tree', 'tree', treeOptions)
+    },
+    icon: {
+      innerHTML: null,
+      renderer: null
+    }
+  };
+
+  inputjs.init(inputOptions);
+  treejs.init(treeOptions);
+
 </script>

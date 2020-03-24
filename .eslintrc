@@ -17,6 +17,9 @@
     "no-unused-expressions": 0,
     "no-unused-vars": ["error", { "argsIgnorePattern": "next" }],
     "linebreak-style": ["error", "windows"],
-    "prefer-arrow-callback": 0
+    "prefer-arrow-callback": 0,
+    "prefer-destructuring": 0,
+    "operator-assignment": 0,
+    "no-continue": 0
   }
 }
