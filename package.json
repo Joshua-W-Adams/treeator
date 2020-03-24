@@ -1,5 +1,5 @@
 {
-  "name": "treejs",
+  "name": "@joshadams/treejs",
   "version": "1.0.0",
   "description": "A JavaScript component to create views of tree data structures",
   "main": "index.js",
