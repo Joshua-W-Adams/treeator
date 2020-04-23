@@ -47,7 +47,7 @@ function _deleteElement(id) {
   }
 }
 
-function _onHoverDefault(tr) {
+function onHoverDefault(tr) {
   if (onHoverRow !== tr) {
     // clear current styling
     if (onHoverRow !== singleClickedRow) {
@@ -62,7 +62,7 @@ function _onHoverDefault(tr) {
   }
 }
 
-function _onClickDefault(tr) {
+function onClickDefault(tr) {
   if (singleClickedRow !== tr) {
     // clear current styling
     singleClickedRow.style.backgroundColor = '';
@@ -73,7 +73,7 @@ function _onClickDefault(tr) {
   }
 }
 
-function _onDblClickDefault(tr) {
+function onDblClickDefault(tr) {
   if (dblClickedRow !== tr) {
     // set new row
     dblClickedRow = tr;
@@ -84,11 +84,14 @@ function _containerRenderer() {
   const container = {};
   container.className = 'treejs-tree';
   container.style = {
-    height: '500px',
+    'font-family': 'roboto',
+    margin: '0px',
+    fontFamily: 'roboto',
+    height: '100%',
+    width: '100%',
     boxSizing: 'border-box',
     fontSize: '13px',
-    overflow: 'scroll',
-    fontFamily: 'sans-serif'
+    overflow: 'scroll'
   };
   return container;
 }
@@ -97,9 +100,19 @@ function _rowRenderer() {
   const row = {};
   row.className = '';
   row.style = {
-    wordBreak: 'break-all'
+    wordBreak: 'break-all',
+    'font-size': '14px'
   };
   return row;
+}
+
+function _cellRenderer() {
+  const cell = {};
+  cell.className = '';
+  cell.style = {
+    padding: '5px'
+  };
+  return cell;
 }
 
 function _applyRender(element, properties) {
@@ -318,6 +331,7 @@ function _addHeaders(options, treeRoot) {
   const columnNames = options.tree.columns.sourceNames;
   const newColumnNames = options.tree.columns.newNames;
   const widths = options.tree.columns.widths;
+  const display = options.tree.columns.displayNames || false;
   // add tree view header
   const treeHeader = _addElement(treeRoot, 'thead');
   // add headers to header element
@@ -333,13 +347,40 @@ function _addHeaders(options, treeRoot) {
     // apply header styles
     th.width = width;
     // apply header values
-    th.innerHTML = header;
+    if (display) {
+      th.innerHTML = header;
+    }
   }
+}
+
+function _fileSystemIconLookup() {
+  return {
+    file: '&#128459;',
+    folder: '&#128447;'
+  };
+}
+
+function _iconLookup(rowTypeIcons) {
+  let lookup = {};
+  if (rowTypeIcons === 'filesystem') {
+    lookup = _fileSystemIconLookup();
+  }
+  return lookup;
+}
+
+function _addRowIcons(row, tableCell, rowTypeIcons) {
+  const icon = _addElement(tableCell, 'span');
+  const lookup = _iconLookup(rowTypeIcons);
+  icon.innerHTML = lookup[row.ICON_TYPE] || '';
+  icon.style.padding = '0px 5px 0px 5px';
+  icon.style.color = 'rgba(95,99,104,1)';
 }
 
 function _addCells(options, row, columns, tableRow, expand) {
   const cnf = {
-    expandIcon: options.tree.rows.expandIcon || '▸'
+    expandIcon: options.tree.rows.expandIcon || '▸',
+    rowTypeIcons: options.tree.rows.rowTypeIcons || '',
+    renderer: options.tree.cells.renderer || _cellRenderer
   };
   for (let n = 0; n < columns.length; n++) {
     const tableCell = _addElement(tableRow, 'td');
@@ -355,7 +396,9 @@ function _addCells(options, row, columns, tableRow, expand) {
         tableCellSpan.innerHTML = cnf.expandIcon;
       }
       // set tablecell indent
-      tableCell.style.paddingLeft = `${row.DATA_DEPTH * 15}px`;
+      tableCellSpan.style.paddingLeft = `${row.DATA_DEPTH * 15}px`;
+      // add row type icons
+      _addRowIcons(row, tableCell, cnf.rowTypeIcons);
       // add toggle function to tree elements
       tableCell.onclick = function cb(e) {
         _toggleTreeView(options, e);
@@ -370,27 +413,30 @@ function _addCells(options, row, columns, tableRow, expand) {
     tableCell.style.whiteSpace = 'nowrap';
     tableCell.style.overflow = 'hidden';
     tableCell.title = cellValue;
+    // apply cell renderer
+    const render = cnf.renderer();
+    _applyRender(tableCell, render);
   }
 }
 
-function _addRowEvents(tableRow, options) {
+function _addRowEvents(tr, row, pos, options) {
   const cnf = {
-    onClick: options.tree.rows.onClick || _onClickDefault,
-    onDblClick: options.tree.rows.onDblClick || _onDblClickDefault,
-    onHover: options.tree.rows.onHover || _onHoverDefault,
+    onClick: options.tree.rows.onClick || onClickDefault,
+    onDblClick: options.tree.rows.onDblClick || onDblClickDefault,
+    onHover: options.tree.rows.onHover || onHoverDefault,
     onHoverOut: options.tree.rows.onHoverOut || function cb() {}
   };
-  tableRow.onclick = function onclick() {
-    return cnf.onClick(tableRow);
+  tr.onclick = function onclick() {
+    return cnf.onClick(tr, row, pos);
   };
-  tableRow.ondblclick = function ondblclick() {
-    return cnf.onDblClick(tableRow);
+  tr.ondblclick = function ondblclick() {
+    return cnf.onDblClick(tr, row, pos);
   };
-  tableRow.onmouseover = function onmouseover() {
-    return cnf.onHover(tableRow);
+  tr.onmouseover = function onmouseover() {
+    return cnf.onHover(tr, row, pos);
   };
-  tableRow.onmouseout = function onmouseout() {
-    return cnf.onHoverOut(tableRow);
+  tr.onmouseout = function onmouseout() {
+    return cnf.onHoverOut(tr, row, pos);
   };
 }
 
@@ -430,7 +476,7 @@ function _addRows(options, treeBody) {
     // must occur after the renderer to prevent the class name being overwritten
     tableRow.className = expand;
     // apply row functionality
-    _addRowEvents(tableRow, options);
+    _addRowEvents(tableRow, row, i, options);
     // add cells to row
     _addCells(options, row, options.tree.columns.sourceNames, tableRow, expand);
   }
@@ -507,7 +553,7 @@ function searchTable(searchDivId, tableDivId, divId, options) {
         tr[i].style.display = 'none';
       }
       // re-add double click to newly cloned tree
-      _addRowEvents(tr[i], options);
+      _addRowEvents(tr[i], options.tree.data[i], i, options);
       previousDepth = depth;
     }
   // No input value therefore dont attempt to filter
@@ -533,5 +579,8 @@ function init(options) {
 
 export default {
   init,
-  searchTable
+  searchTable,
+  onHoverDefault,
+  onClickDefault,
+  onDblClickDefault
 };
