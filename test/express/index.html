@@ -25,7 +25,7 @@
 <!-- <script defer type="module" src="src/js/module.js"></script> -->
 <script type="module">
 
-  import treejs from '/src/js/module.js';
+  import treeator from '/src/js/module.js';
   import inputjs from '/node_modules/@joshadams/inputjs/src/js/module.js';
 
   let data = [];
@@ -74,7 +74,7 @@
     onFocusOut: null,
     onHover: null,
     onKeyUp: function () {
-      treejs.searchTable('inputjs-container__input', 'treejs-tree', 'tree', treeOptions)
+      treeator.searchTable('inputjs-container__input', 'treeator-tree', 'tree', treeOptions)
     },
     icon: {
       innerHTML: null,
@@ -83,6 +83,6 @@
   };
 
   inputjs.init(inputOptions);
-  treejs.init(treeOptions);
+  treeator.init(treeOptions);
 
 </script>

@@ -1,5 +1,5 @@
 /*!
- * Treejs
+ * Treeator
  * JavaScript component for generating views of tree data structures
  * (c) 2020 Joshua Adams
  */
@@ -82,7 +82,7 @@ function onDblClickDefault(tr) {
 
 function _containerRenderer() {
   const container = {};
-  container.className = 'treejs-tree';
+  container.className = 'treeator-tree';
   container.style = {
     'font-family': 'roboto',
     margin: '0px',
@@ -264,7 +264,7 @@ function _toggleTreeView(options, tableElement) {
     // then open Item 1 again, then you will understand)
     // get all children with expand
     const expandnodes = children.filter(function cb(item) {
-      return item.classList.contains('treejs-tree--expand');
+      return item.classList.contains('treeator-tree--expand');
     });
     let childrenCopy = children;
     // loop through all collapsed rows
@@ -284,8 +284,8 @@ function _toggleTreeView(options, tableElement) {
     });
     // Change icon and hide/show children
     if (target.innerHTML === cnf.collapseIcon) {
-      parent.classList.remove('treejs-tree--collapse');
-      parent.classList.add('treejs-tree--expand');
+      parent.classList.remove('treeator-tree--collapse');
+      parent.classList.add('treeator-tree--expand');
       target.innerHTML = cnf.expandIcon;
       // hide all children
       children.map(function cb(e) {
@@ -293,8 +293,8 @@ function _toggleTreeView(options, tableElement) {
       });
     } else if (target.innerHTML === cnf.expandIcon) {
       // prevents adding chevrons to rows with no children
-      parent.classList.remove('treejs-tree--expand');
-      parent.classList.add('treejs-tree--collapse');
+      parent.classList.remove('treeator-tree--expand');
+      parent.classList.add('treeator-tree--collapse');
       target.innerHTML = cnf.collapseIcon;
       // show on specific children
       childrenCopy.map(function cb(e) {
@@ -320,7 +320,7 @@ function _displayTree(treeRoot, divId, searchDivId, options) {
   const input = document.getElementById(searchDivId);
   // add filtered tree if applicable
   if (input && input.value) {
-    searchTable(searchDivId, 'treejs-tree', divId, options); // eslint-disable-line no-use-before-define
+    searchTable(searchDivId, 'treeator-tree', divId, options); // eslint-disable-line no-use-before-define
   } else {
     // add tree to DOM
     div.appendChild(treeRoot);
@@ -390,7 +390,7 @@ function _addCells(options, row, columns, tableRow, expand) {
       tableCellSpan.style.height = '18px';
       tableCellSpan.style.width = '18px';
       tableCellSpan.style.display = 'inline-block';
-      if (expand === 'treejs-tree--expand') {
+      if (expand === 'treeator-tree--expand') {
         tableCellSpan.style.cursor = 'pointer';
         tableCellSpan.style.textAlign = 'center';
         tableCellSpan.innerHTML = cnf.expandIcon;
@@ -454,7 +454,7 @@ function _addRows(options, treeBody) {
     // confirm if row element has children
     if (i < data.length - 1) {
       if (row.DATA_DEPTH < (data[i + 1]).DATA_DEPTH) {
-        expand = 'treejs-tree--expand';
+        expand = 'treeator-tree--expand';
       }
     }
     // confirm if row should be displayed
@@ -488,12 +488,12 @@ function _addRows(options, treeBody) {
  */
 function _createTreeView(options, frag) {
   // delete dynamic tree element if it already exists
-  _deleteElement('treejs-tree');
+  _deleteElement('treeator-tree');
   // create new dynamic tree element
   // cellspacing 0 to support IE6 and IE7 - Removes unwanted whitespace between
   // table cells
   const treeRoot = _addElement(frag, 'table');
-  treeRoot.id = 'treejs-tree';
+  treeRoot.id = 'treeator-tree';
   treeRoot.cellSpacing = '0';
   treeRoot.style.tableLayout = 'fixed';
   // add headers to tree
@@ -545,8 +545,8 @@ function searchTable(searchDivId, tableDivId, divId, options) {
       if (found) {
         tr[i].style.display = '';
         // fix chevron status to allow drilling down
-        tr[i].classList.remove('treejs-tree--collapse');
-        tr[i].classList.add('treejs-tree--expand');
+        tr[i].classList.remove('treeator-tree--collapse');
+        tr[i].classList.add('treeator-tree--expand');
         // display parent elements
         _displayParents(parents);
       } else {

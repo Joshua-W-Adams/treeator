@@ -1,18 +1,18 @@
 {
   "name": "treeator",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A JavaScript component to create views of tree data structures",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Joshua-W-Adams/treejs.git"
+    "url": "git+https://github.com/Joshua-W-Adams/treeator.git"
   },
   "author": "Joshua Adams",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Joshua-W-Adams/treejs/issues"
+    "url": "https://github.com/Joshua-W-Adams/treeator/issues"
   },
-  "homepage": "https://github.com/Joshua-W-Adams/treejs#readme",
+  "homepage": "https://github.com/Joshua-W-Adams/treeator#readme",
   "devDependencies": {
     "@babel/core": "^7.8.4",
     "@babel/preset-env": "^7.8.4",
