@@ -82,7 +82,19 @@
     }
   };
 
+  // test tree creation
   inputjs.init(inputOptions);
   treeator.init(treeOptions);
+
+  // test append function
+  let records = [{
+    position: 1,
+    data: {DATA_DEPTH: 1, ITEM: "Test 1", DESCRIPTION: "Test 1", ICON_TYPE: 'folder'}
+  }, {
+    position: 0,
+    data: {DATA_DEPTH: 0, ITEM: "Test 2", DESCRIPTION: "Test 2", ICON_TYPE: 'folder'}
+  }];
+
+  treeator.appendTreeRecords(records);
 
 </script>

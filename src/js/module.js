@@ -13,6 +13,10 @@
 // variable to store tree fragment to enable searching operations with
 // minimised repaints and reflows
 let inMemTree;
+// stores the current tree element display so that its state can be tracked
+let currentTree;
+// store globalOptions for use in calls to treeator after initial construction
+let globalOptions;
 // track user interaction with tree
 let onHoverRow = { style: {} };
 let singleClickedRow = { style: {} };
@@ -234,6 +238,18 @@ function _getChildren(parent, depth) {
   });
 }
 
+function _getParentIndex(elementPosition, data, depth) {
+  // loop upwards (backwards) through table array
+  for (let i = elementPosition; i > -1; i--) {
+    const row = data[i];
+    const rowDepth = row.DATA_DEPTH;
+    // parent encountered
+    if (rowDepth < depth) {
+      return i;
+    }
+  }
+}
+
 function _hide(ele) {
   ele.style.display = 'none';
 }
@@ -440,45 +456,77 @@ function _addRowEvents(tr, row, pos, options) {
   };
 }
 
-function _addRows(options, treeBody) {
+function _insertAfter(newNode, referenceNode) {
+  referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+}
+
+function _addRow(options, tree, row, i, data) {
   const cnf = {
     renderer: options.tree.rows.renderer || _rowRenderer
   };
+  let expand = '';
+  let display = 'none';
+  let colourCode = '';
+  // confirm if row element has children
+  if (i < data.length - 1) {
+    if (row.DATA_DEPTH < (data[i + 1]).DATA_DEPTH) {
+      expand = 'treeator-tree--expand';
+    }
+  }
+  // confirm if row should be displayed
+  // case 1 - initial construction of tree view
+  if (row.DATA_DEPTH === 0) {
+    display = '';
+  // case 2 - tree already constructed - check parent display status
+  } else if (currentTree && i !== 0) {
+    // get parent of current element
+    const parentRowIndex = _getParentIndex(i, data, row.DATA_DEPTH);
+    // check display status of parent
+    if (currentTree.rows[parentRowIndex].className !== 'treeator-tree--expand') {
+      display = '';
+    }
+  }
+  // confirm if row should be coloured
+  if (row.COLOUR_CODE) {
+    colourCode = `rgba(${row.COLOUR_CODE})`;
+  }
+  // create table row
+  const tableRow = document.createElement('tr');
+  // apply styling to row
+  tableRow.setAttribute('data-depth', row.DATA_DEPTH);
+  tableRow.style.display = display;
+  tableRow.style.backgroundColor = colourCode;
+  const render = cnf.renderer();
+  _applyRender(tableRow, render);
+  // must occur after the renderer to prevent the class name being overwritten
+  tableRow.className = expand;
+  // apply row functionality
+  _addRowEvents(tableRow, row, i, options);
+  // add cells to row
+  _addCells(options, row, options.tree.columns.sourceNames, tableRow, expand);
+  // append table row to tree body
+  const rows = tree.rows;
+  const treeBody = tree.tBodies[0];
+  // get row at desired insert position
+  const insertRow = rows.item(i - 1);
+  // case 1 - new table being constructed
+  if (!insertRow) {
+    // prepend puts element at first position in children array
+    treeBody.prepend(tableRow);
+  // case 2 - table already exists
+  } else {
+    // insert new row at specified location
+    _insertAfter(tableRow, insertRow);
+    // insertRow.parentNode.insertAfter(tableRow, insertRow);
+  }
+}
+
+function _addRows(options, tree) {
   const data = options.tree.data;
   // add rows to table
   for (let i = 0; i < data.length; i++) {
     const row = data[i];
-    let expand = '';
-    let display = 'none';
-    let colourCode = '';
-    // confirm if row element has children
-    if (i < data.length - 1) {
-      if (row.DATA_DEPTH < (data[i + 1]).DATA_DEPTH) {
-        expand = 'treeator-tree--expand';
-      }
-    }
-    // confirm if row should be displayed
-    if (row.DATA_DEPTH === 0) {
-      display = '';
-    }
-    // confirm if row should be coloured
-    if (row.COLOUR_CODE) {
-      colourCode = `rgba(${row.COLOUR_CODE})`;
-    }
-    // create table row
-    const tableRow = _addElement(treeBody, 'tr');
-    // apply styling to row
-    tableRow.setAttribute('data-depth', row.DATA_DEPTH);
-    tableRow.style.display = display;
-    tableRow.style.backgroundColor = colourCode;
-    const render = cnf.renderer();
-    _applyRender(tableRow, render);
-    // must occur after the renderer to prevent the class name being overwritten
-    tableRow.className = expand;
-    // apply row functionality
-    _addRowEvents(tableRow, row, i, options);
-    // add cells to row
-    _addCells(options, row, options.tree.columns.sourceNames, tableRow, expand);
+    _addRow(options, tree, row, i, data);
   }
 }
 
@@ -499,9 +547,9 @@ function _createTreeView(options, frag) {
   // add headers to tree
   _addHeaders(options, treeRoot);
   // add table body
-  const treeBody = _addElement(treeRoot, 'tbody');
+  _addElement(treeRoot, 'tbody');
   // add table rows
-  _addRows(options, treeBody);
+  _addRows(options, treeRoot);
   // copy tree root to global variable
   inMemTree = treeRoot.cloneNode(true);
   // apply styling to tree view container
@@ -566,11 +614,38 @@ function searchTable(searchDivId, tableDivId, divId, options) {
   _addTreeToDom(table, divId, tableDivId);
 }
 
+function _addRowToDataModel(data, row) {
+  const position = row.position;
+  const rowData = row.data;
+  data.splice(position, 0, rowData);
+}
+
+// records = [{
+//   position: position in tree to insert
+//   data: row of data to insert at position
+// }]
+function appendTreeRecords(records) {
+  // loop through all records
+  for (let i = 0; i < records.length; i++) {
+    const record = records[i];
+    // append records to in memory dom model
+    _addRowToDataModel(globalOptions.tree.data, record);
+    // append elements to in memory dom
+    _addRow(globalOptions, inMemTree, record.data, record.position, globalOptions.tree.data);
+    // append elements to displayed dom
+    _addRow(globalOptions, currentTree, record.data, record.position, globalOptions.tree.data);
+  }
+}
+
 function init(options) {
   // create in-memory fragment to store tree DOM elements - limits DOM to one repaint
   const frag = document.createDocumentFragment();
   // add tree container element
   const tree = _createTreeView(options, frag);
+  // save tree to memory
+  currentTree = tree;
+  // save options to memory
+  globalOptions = options;
   // display to user
   _displayTree(tree, options.tree.div, options.search.div, options);
 }
@@ -580,6 +655,7 @@ function init(options) {
 export default {
   init,
   searchTable,
+  appendTreeRecords,
   onHoverDefault,
   onClickDefault,
   onDblClickDefault
