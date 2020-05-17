@@ -628,12 +628,12 @@ function appendTreeRecords(records) {
   // loop through all records
   for (let i = 0; i < records.length; i++) {
     const record = records[i];
-    // append records to in memory dom model
-    _addRowToDataModel(globalOptions.tree.data, record);
     // append elements to in memory dom
     _addRow(globalOptions, inMemTree, record.data, record.position, globalOptions.tree.data);
     // append elements to displayed dom
     _addRow(globalOptions, currentTree, record.data, record.position, globalOptions.tree.data);
+    // append records to in memory dom model
+    _addRowToDataModel(globalOptions.tree.data, record);
   }
 }
 
