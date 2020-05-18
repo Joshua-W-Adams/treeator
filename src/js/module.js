@@ -242,7 +242,11 @@ function _getParentIndex(elementPosition, data, depth) {
   // loop upwards (backwards) through table array
   for (let i = elementPosition; i > -1; i--) {
     const row = data[i];
-    const rowDepth = row.DATA_DEPTH;
+    let rowDepth;
+    // handle case where user attempts to insert row at end of table
+    if (row) {
+      rowDepth = row.DATA_DEPTH;
+    };
     // parent encountered
     if (rowDepth < depth) {
       return i;
