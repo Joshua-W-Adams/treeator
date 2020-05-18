@@ -608,7 +608,12 @@ function searchTable(searchDivId, tableDivId, divId, options) {
       _addRowEvents(tr[i], options.tree.data[i], i, options);
       previousDepth = depth;
     }
-  // No input value therefore dont attempt to filter
+  } else {
+    // No input value therefore dont attempt to filter
+    // add row events and objects to table
+    for (let i = 0; i < tr.length; i++) {
+      _addRowEvents(tr[i], options.tree.data[i], i, options);
+    }
   }
   // add toggle function to tree elements
   table.onclick = function toggle(e) {
