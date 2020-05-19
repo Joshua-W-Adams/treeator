@@ -240,7 +240,9 @@ function _getChildren(parent, depth) {
 
 function _getParentIndex(elementPosition, data, depth) {
   // loop upwards (backwards) through table array
-  for (let i = elementPosition; i > -1; i--) {
+  // need to start at element position - 1 as element position is
+  // the position that the new element is to be inserted into
+  for (let i = elementPosition - 1; i > -1; i--) {
     const row = data[i];
     let rowDepth;
     // handle case where user attempts to insert row at end of table
