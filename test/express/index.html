@@ -11,11 +11,18 @@
         padding-top: 5px;
         height: calc(100vh - 43px - 16px);
       }
+      #testFunctionsContainer {
+        padding: 5px;
+      }
     </style>
   </head>
   <body spellcheck="false">
     <!-- load input element here -->
     <div id="treeSearch"></div>
+    <div id="testFunctionsContainer">
+      <input id="removeInput"></input>
+      <button id="removeButton">Remove</button>
+    </div>
     <div id="container">
       <!-- load tree element here -->
       <div id="tree"></div>
@@ -97,4 +104,18 @@
 
   treeator.appendTreeRecords(records);
 
+  // assign onclick function to test buttons
+  let removeInput = document.getElementById('removeInput');
+  let removeButton = document.getElementById('removeButton');
+  removeButton.onclick = function (event) {
+    let removeIndex = removeInput.value;
+    const record = [];
+    if (removeIndex) {
+      removeIndex = parseInt(removeIndex);
+      record.push({
+        position: removeIndex
+      });
+    }    
+    treeator.removeTreeRecords(record);
+  }
 </script>

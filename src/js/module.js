@@ -156,15 +156,15 @@ function _getParentsToDisplay(parents, depth, previousDepth, tr) {
     parents = [];
     parents[0] = [];
     parents[0].push(tr);
-  // case 2 - depth remains the same
+    // case 2 - depth remains the same
   } else if (depth === previousDepth) {
     // reset current depth level
     parents[depth] = [];
     parents[depth].push(tr);
-  // case 3 - depth increased
+    // case 3 - depth increased
   } else if (depth > previousDepth) {
     parents[depth].push(tr);
-  // case 4 - depth decreased
+    // case 4 - depth decreased
   } else {
     // clear current depth and lower depths
     for (let i = depth; i < parents.length; i++) {
@@ -197,7 +197,7 @@ function _nextUntil(elem, selector, filter, callback) {
   // normalise behaviour of matches function in older browsers
   if (!Element.prototype.matches) {
     Element.prototype.matches = Element.prototype.msMatchesSelector
-    || Element.prototype.webkitMatchesSelector;
+      || Element.prototype.webkitMatchesSelector;
   }
   // Setup siblings array
   const siblings = [];
@@ -248,7 +248,7 @@ function _getParentIndex(elementPosition, data, depth) {
     // handle case where user attempts to insert row at end of table
     if (row) {
       rowDepth = row.DATA_DEPTH;
-    };
+    }
     // parent encountered
     if (rowDepth < depth) {
       return i;
@@ -446,7 +446,7 @@ function _addRowEvents(tr, row, pos, options) {
     onClick: options.tree.rows.onClick || onClickDefault,
     onDblClick: options.tree.rows.onDblClick || onDblClickDefault,
     onHover: options.tree.rows.onHover || onHoverDefault,
-    onHoverOut: options.tree.rows.onHoverOut || function cb() {}
+    onHoverOut: options.tree.rows.onHoverOut || function cb() { }
   };
   tr.onclick = function onclick() {
     return cnf.onClick(tr, row, pos);
@@ -483,7 +483,7 @@ function _addRow(options, tree, row, i, data) {
   // case 1 - initial construction of tree view
   if (row.DATA_DEPTH === 0) {
     display = '';
-  // case 2 - tree already constructed - check parent display status
+    // case 2 - tree already constructed - check parent display status
   } else if (currentTree && i !== 0) {
     // get parent of current element
     const parentRowIndex = _getParentIndex(i, data, row.DATA_DEPTH);
@@ -519,7 +519,7 @@ function _addRow(options, tree, row, i, data) {
   if (!insertRow) {
     // prepend puts element at first position in children array
     treeBody.prepend(tableRow);
-  // case 2 - table already exists
+    // case 2 - table already exists
   } else {
     // insert new row at specified location
     _insertAfter(tableRow, insertRow);
@@ -631,6 +631,39 @@ function _addRowToDataModel(data, row) {
   data.splice(position, 0, rowData);
 }
 
+function _getChildrenLength(data, index) {
+  let childCount = 0;
+  const indexDepth = data[index].DATA_DEPTH;
+  // loop through data from from index child to end of data set
+  for (let i = index + 1; i < data.length; i++) {
+    const rowDepth = data[i].DATA_DEPTH;
+    // confirm if row is a child
+    if (rowDepth > indexDepth) {
+      childCount++;
+    } else {
+      // exit for loop
+      break;
+    }
+  }
+  return childCount;
+}
+
+function _removeRowFromDataModel(data, row) {
+  const position = row.position;
+  const length = _getChildrenLength(data, position);
+  data.splice(position, length + 1);
+}
+
+function _removeRow(tableElement, data, row) {
+  const position = row.position;
+  const length = _getChildrenLength(data, position);
+  // remove elements and children from dom
+  for (let i = 0; i < length + 1; i++) {
+    // need to delete from bottom to top to ensure refrernce remain correct
+    tableElement.deleteRow(position + length - i);
+  }
+}
+
 // records = [{
 //   position: position in tree to insert
 //   data: row of data to insert at position
@@ -647,6 +680,28 @@ function appendTreeRecords(records) {
     _addRowToDataModel(globalOptions.tree.data, record);
   }
 }
+
+// records are expected in top to bottom order
+// records = [{
+//   position: position in tree to remove
+// }]
+function removeTreeRecords(records) {
+  // loop through all records
+  for (let i = records.length - 1; i > -1; i--) {
+    const record = records[i];
+    // remove elements from in memory dom
+    _removeRow(inMemTree, globalOptions.tree.data, record);
+    // remove elements from displayed dom
+    _removeRow(currentTree, globalOptions.tree.data, record);
+    // remove records from in memory dom model
+    _removeRowFromDataModel(globalOptions.tree.data, record);
+  }
+
+  console.log(inMemTree);
+  console.log(currentTree);
+  console.log(globalOptions.tree.data);
+}
+
 
 function init(options) {
   // create in-memory fragment to store tree DOM elements - limits DOM to one repaint
@@ -669,5 +724,6 @@ export default {
   appendTreeRecords,
   onHoverDefault,
   onClickDefault,
-  onDblClickDefault
+  onDblClickDefault,
+  removeTreeRecords
 };
