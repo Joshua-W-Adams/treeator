@@ -696,10 +696,6 @@ function removeTreeRecords(records) {
     // remove records from in memory dom model
     _removeRowFromDataModel(globalOptions.tree.data, record);
   }
-
-  console.log(inMemTree);
-  console.log(currentTree);
-  console.log(globalOptions.tree.data);
 }
 
 
