@@ -335,6 +335,8 @@ function _addTreeToDom(treeElement, divId, tableDivId) {
   // add new filtered tree
   const parent = document.getElementById(divId);
   parent.appendChild(treeElement);
+  // set currentTree in state
+  currentTree = treeElement;
 }
 
 function _displayTree(treeRoot, divId, searchDivId, options) {
@@ -434,7 +436,6 @@ function _addCells(options, row, columns, tableRow, expand) {
     tableCell.style.textAlign = alignments[n];
     tableCell.style.whiteSpace = 'nowrap';
     tableCell.style.overflow = 'hidden';
-    tableCell.title = cellValue;
     // apply cell renderer
     const render = cnf.renderer();
     _applyRender(tableCell, render);
@@ -698,6 +699,88 @@ function removeTreeRecords(records) {
   }
 }
 
+function _updateChildrenProperties(data, index, childUpdates) {
+  const indexDepth = data[index].DATA_DEPTH;
+  const start = parseInt(index);
+  // loop through data from from index child to end of data set
+  for (let i = start + 1; i < data.length; i++) {
+    const row = data[i];
+    const rowDepth = row.DATA_DEPTH;
+    // confirm if row is a child
+    if (rowDepth > indexDepth) {
+      // loop through all updates for each child
+      for (let n = 0; n < childUpdates.length; n++) {
+        // get current update
+        const update = childUpdates[n];
+        const property = update.property;
+        const findStartsWithString = update.findStartsWithString;
+        const replaceString = update.replaceString;
+        if (row[property].startsWith(findStartsWithString)) {
+          // update directory
+          row[property] = (row[property]).replace(findStartsWithString, replaceString);
+        }
+      }
+    } else {
+      // exit for loop
+      break;
+    }
+  }
+}
+
+function _updateRowToDataModel(data, row) {
+  const rowUpdates = row.updates;
+  const position = row.position;
+  const childUpdates = row.childUpdates;
+  // update record in tree
+  if (rowUpdates) {
+    for (let i = 0; i < rowUpdates.length; i++) {
+      const property = rowUpdates[i].property;
+      const value = rowUpdates[i].value;
+      data[position][property] = value;
+    }
+  }
+  // update record children in tree
+  if (childUpdates) {
+    _updateChildrenProperties(data, position, childUpdates);
+  }
+}
+
+function _updateRow(tableElement, row) {
+  const updates = row.htmlUpdates;
+  if (updates) {
+    const position = row.position;
+    const tr = tableElement.rows[position];
+    for (let i = 0; i < updates.length; i++) {
+      const update = updates[i];
+      const column = update.column;
+      const value = update.value;
+      const childNodes = tr.cells[column].childNodes;
+      // last node always contains text value
+      const lastNode = childNodes[childNodes.length - 1];
+      lastNode.data = value;
+    }
+  }
+}
+
+// records = [{
+//   position: position of item to update,
+//   updates: [{property: "propertyName", value: "value"}, ...],
+//   childUpdates: [{property: "FILE_PATH", findStartsWithString: "old_dir",
+//                 replaceString: "new_dir"}],
+//   htmlUpdates: [{property: "propertyName", value: "value"}, ...]
+// }]
+function updateTreeRecords(records) {
+  // loop through all records
+  for (let i = 0; i < records.length; i++) {
+    const record = records[i];
+    // append elements to in memory dom
+    _updateRow(inMemTree, record);
+    // append elements to displayed dom
+    _updateRow(currentTree, record);
+    // append records to in memory dom model
+    _updateRowToDataModel(globalOptions.tree.data, record);
+  }
+}
 
 function init(options) {
   // create in-memory fragment to store tree DOM elements - limits DOM to one repaint
@@ -721,5 +804,6 @@ export default {
   onHoverDefault,
   onClickDefault,
   onDblClickDefault,
-  removeTreeRecords
+  removeTreeRecords,
+  updateTreeRecords
 };

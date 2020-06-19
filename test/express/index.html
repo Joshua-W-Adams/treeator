@@ -20,8 +20,14 @@
     <!-- load input element here -->
     <div id="treeSearch"></div>
     <div id="testFunctionsContainer">
-      <input id="removeInput"></input>
+      <input id="removeInput" placeholder="Row"></input>
       <button id="removeButton">Remove</button>
+    </div>
+    <div id="testFunctionsContainer">
+      <input id="updateRowInput" placeholder="Row" value="1"></input>
+      <input id="updateColumnInput" placeholder="Column" value="0"></input>
+      <input id="updateValueInput" placeholder="Value" value="test"></input>
+      <button id="updateButton">Update</button>
     </div>
     <div id="container">
       <!-- load tree element here -->
@@ -38,9 +44,9 @@
   let data = [];
 
   for (let i = 0; i < 10; i++) {
-    data.push({DATA_DEPTH: 0, ITEM: "Montara FPSO", DESCRIPTION: "Facility", ICON_TYPE: 'folder'});
-    data.push({DATA_DEPTH: 1, ITEM: "Cargo Oil", DESCRIPTION: "System", ICON_TYPE: 'folder'});
-    data.push({DATA_DEPTH: 2, ITEM: "33-ZX-012 6C Cargo Oil Tank", DESCRIPTION: "Loop - Tank - 6C Cargo Oil Tank", ICON_TYPE: 'file'});
+    data.push({DATA_DEPTH: 0, ITEM: "Montara FPSO", DESCRIPTION: "Facility", ICON_TYPE: 'folder', FILE_PATH: "root_dir"});
+    data.push({DATA_DEPTH: 1, ITEM: "Cargo Oil", DESCRIPTION: "System", ICON_TYPE: 'folder', FILE_PATH: "root_dir/systems"});
+    data.push({DATA_DEPTH: 2, ITEM: "33-ZX-012 6C Cargo Oil Tank", DESCRIPTION: "Loop - Tank - 6C Cargo Oil Tank", ICON_TYPE: 'file', FILE_PATH: "root_dir/systems/tanks"});
   }
 
   const treeOptions = {
@@ -96,15 +102,15 @@
   // test append function
   let records = [{
     position: 1,
-    data: {DATA_DEPTH: 1, ITEM: "Test 1", DESCRIPTION: "Test 1", ICON_TYPE: 'folder'}
+    data: {DATA_DEPTH: 1, ITEM: "Test 1", DESCRIPTION: "Test 1", ICON_TYPE: 'folder', FILE_PATH: "root_dir/systems"}
   }, {
     position: 0,
-    data: {DATA_DEPTH: 0, ITEM: "Test 2", DESCRIPTION: "Test 2", ICON_TYPE: 'folder'}
+    data: {DATA_DEPTH: 0, ITEM: "Test 2", DESCRIPTION: "Test 2", ICON_TYPE: 'folder', FILE_PATH: "root_dir"}
   }];
 
   treeator.appendTreeRecords(records);
 
-  // assign onclick function to test buttons
+  // configure remove function
   let removeInput = document.getElementById('removeInput');
   let removeButton = document.getElementById('removeButton');
   removeButton.onclick = function (event) {
@@ -117,5 +123,45 @@
       });
     }    
     treeator.removeTreeRecords(record);
+  }
+
+  // configure update function
+  let updateRowInput = document.getElementById('updateRowInput');
+  let updateColumnInput = document.getElementById('updateColumnInput');
+  let updateValueInput = document.getElementById('updateValueInput');
+  let updateButton = document.getElementById('updateButton');
+  updateButton.onclick = function (event) {
+    let row = updateRowInput.value;
+    let column = updateColumnInput.value;
+    let value = updateValueInput.value;
+    const record = [];
+    if (row && column && value) {
+      record.push({
+        position: row, 
+        updates: [
+          {
+            property: "ITEM", 
+            value: value
+          }, {
+            property: "FILE_PATH", 
+            value: "new_dir"
+          }
+        ], 
+        childUpdates: [
+          {
+            property: "FILE_PATH", 
+            findStartsWithString: "root_dir",
+            replaceString: "new_dir"
+          }
+        ], 
+        htmlUpdates: [
+          {
+            column: column, 
+            value: value
+          }
+        ]
+      });
+    }
+    treeator.updateTreeRecords(record);
   }
 </script>
