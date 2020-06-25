@@ -21,6 +21,7 @@
     "prefer-destructuring": 0,
     "operator-assignment": 0,
     "no-continue": 0,
-    "radix": 0
+    "radix": 0,
+    "no-else-return": 0
   }
 }

@@ -29,6 +29,14 @@
       <input id="updateValueInput" placeholder="Value" value="test"></input>
       <button id="updateButton">Update</button>
     </div>
+    <div id="testFunctionsContainer">
+      <input id="findLastChildInput" placeholder="Row"></input>
+      <button id="findLastChildButton">Find Last Child</button>
+    </div>
+    <div id="testFunctionsContainer">
+      <input id="findChildrenInput" placeholder="Row"></input>
+      <button id="findChildrenButton">Find Children</button>
+    </div>
     <div id="container">
       <!-- load tree element here -->
       <div id="tree"></div>
@@ -164,4 +172,17 @@
     }
     treeator.updateTreeRecords(record);
   }
+
+  // configure find functions
+  let findLastChildButton = document.getElementById('findLastChildButton');
+  let findChildrenButton = document.getElementById('findChildrenButton');
+  let findLastChildInput = document.getElementById('findLastChildInput');
+  let findChildrenInput = document.getElementById('findChildrenInput');
+  findLastChildButton.onclick = function (event) {
+    console.log(treeator.findLastChild(parseInt(findLastChildInput.value)));
+  }
+  findChildrenButton.onclick = function (event) {
+    console.log(treeator.getChildren(parseInt(findChildrenInput.value)));
+  }
+
 </script>

@@ -782,6 +782,55 @@ function updateTreeRecords(records) {
   }
 }
 
+function findLastChild(parentPos, data) {
+  if (!data) {
+    data = globalOptions.tree.data;
+  }
+  const parent = data[parentPos];
+  const parentDepth = parent.DATA_DEPTH;
+  const startPos = parentPos + 1;
+  let childCount = 0;
+  for (let i = startPos; i < data.length; i++) {
+    const row = data[i];
+    const rowDepth = row.DATA_DEPTH;
+    if (parentDepth < rowDepth) {
+      // case 1 - child record
+      childCount++;
+    } else if (rowDepth <= parentDepth) {
+      // case 2 - sibling or parent encountered - end of children
+      if (childCount !== 0) {
+        return i - 1;
+      } else {
+        // handle case that parent has no children
+        return null;
+      }
+    }
+  }
+  // case 3 - end of dataset
+  return data.length - 1;
+}
+
+function getChildren(parentPos, data) {
+  if (!data) {
+    data = globalOptions.tree.data;
+  }
+  const parent = data[parentPos];
+  const parentDepth = parent.DATA_DEPTH;
+  const children = [];
+  for (let i = parentPos + 1; i < data.length; i++) {
+    const row = data[i];
+    const rowDepth = row.DATA_DEPTH;
+    // case 1 - child found
+    if (rowDepth === parentDepth + 1) {
+      children.push(data[i]);
+    // case 2 - no more children to be found
+    } else if (rowDepth <= parentDepth) {
+      break;
+    }
+  }
+  return children;
+}
+
 function init(options) {
   // create in-memory fragment to store tree DOM elements - limits DOM to one repaint
   const frag = document.createDocumentFragment();
@@ -805,5 +854,7 @@ export default {
   onClickDefault,
   onDblClickDefault,
   removeTreeRecords,
-  updateTreeRecords
+  updateTreeRecords,
+  findLastChild,
+  getChildren
 };
