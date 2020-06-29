@@ -504,7 +504,7 @@ function _addRow(options, tree, row, i, data) {
     // get parent of current element
     const parentRowIndex = _getParentIndex(i, data, row.DATA_DEPTH);
     // check display status of parent
-    if (currentTree.rows[parentRowIndex].className !== 'treeator-tree--expand') {
+    if (tree.rows[parentRowIndex].className !== 'treeator-tree--expand') {
       display = '';
     }
   }
