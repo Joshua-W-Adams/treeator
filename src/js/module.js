@@ -760,11 +760,22 @@ function _updateRowToDataModel(data, row) {
   }
 }
 
-function _updateRow(tableElement, row) {
+function _setRowDefaultDisplay(check, tr, position) {
+  if (check === true) {
+    const data = globalOptions.tree.data[position];
+    if (data.DATA_DEPTH !== 0) {
+      tr.style.display = 'none';
+    }
+  }
+}
+
+function _updateRow(tableElement, row, check) {
   const updates = row.htmlUpdates;
   if (updates) {
     const position = row.position;
     const tr = tableElement.rows[position];
+    // update default display status of row
+    _setRowDefaultDisplay(check, tr, position);
     for (let i = 0; i < updates.length; i++) {
       const update = updates[i];
       const column = update.column;
@@ -789,9 +800,9 @@ function updateTreeRecords(records) {
   for (let i = 0; i < records.length; i++) {
     const record = records[i];
     // append elements to in memory dom
-    _updateRow(inMemTree, record);
+    _updateRow(inMemTree, record, true);
     // append elements to displayed dom
-    _updateRow(currentTree, record);
+    _updateRow(currentTree, record, false);
     // append records to in memory dom model
     _updateRowToDataModel(globalOptions.tree.data, record);
   }

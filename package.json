@@ -1,6 +1,6 @@
 {
   "name": "treeator",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "A JavaScript component to create views of tree data structures",
   "main": "index.js",
   "repository": {

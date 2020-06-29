@@ -20,6 +20,11 @@
     <!-- load input element here -->
     <div id="treeSearch"></div>
     <div id="testFunctionsContainer">
+      <input id="addRowInput" placeholder="Row"></input>
+      <input id="addDepthInput" placeholder="Depth"></input>
+      <button id="addButton">Add</button>
+    </div>
+    <div id="testFunctionsContainer">
       <input id="removeInput" placeholder="Row"></input>
       <button id="removeButton">Remove</button>
     </div>
@@ -131,6 +136,25 @@
       });
     }    
     treeator.removeTreeRecords(record);
+  }
+
+  // configure add function
+  let addRowInput = document.getElementById('addRowInput');
+  let addDepthInput = document.getElementById('addDepthInput');
+  let addButton = document.getElementById('addButton');
+  addButton.onclick = function (event) {
+    let addIndex = addRowInput.value;
+    let addDepth = addDepthInput.value;
+    const record = [];
+    if (addIndex && addDepth) {
+      addIndex = parseInt(addIndex);
+      addDepth = parseInt(addDepth);
+      record.push({
+        position: addIndex,
+        data: {DATA_DEPTH: addDepth, ITEM: "Test", DESCRIPTION: "Test", ICON_TYPE: 'folder', FILE_PATH: "root_dir/systems"}
+      });
+    }    
+    treeator.appendTreeRecords(record);
   }
 
   // configure update function
