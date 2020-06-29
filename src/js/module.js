@@ -138,12 +138,27 @@ function _addHighlight(tdElement, filter) {
   // i = case insensitive
   // g = global. Search for ALL matches in string
   let outerHtml = '';
-  if (tdElement.firstChild.outerHTML) {
+  // case 1 - one child element to persist (chevron)
+  if (tdElement.firstChild && tdElement.firstChild.outerHTML) {
+    // persist html
     outerHtml = tdElement.firstChild.outerHTML;
+    // remove child text
+    t = t.replace(tdElement.firstChild.innerText, '');
+    // case 2 - two child elements to persist
+    if (tdElement.childNodes[1] && tdElement.childNodes[1].outerHTML) {
+      // persist html
+      outerHtml = outerHtml + tdElement.childNodes[1].outerHTML;
+      // remove child text
+      t = t.replace(tdElement.childNodes[1].innerText, '');
+    }
   }
-  // remove chevron from text
-  t = t.replace(tdElement.firstChild.innerText, '');
-  tdElement.innerHTML = outerHtml + t.replace(new RegExp(`(${filter})`, 'ig'), '<span style="background-color: yellow;">$1</span>');
+  // case 1 - filter passed
+  if (filter !== '') {
+    tdElement.innerHTML = outerHtml + t.replace(new RegExp(`(${filter})`, 'ig'), '<span style="background-color: yellow;">$1</span>');
+  // case 2 - empty filter therefore remove highlight
+  } else {
+    tdElement.innerHTML = outerHtml + t;
+  }
 }
 
 function _getParentsToDisplay(parents, depth, previousDepth, tr) {
