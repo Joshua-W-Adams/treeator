@@ -48,11 +48,9 @@
     </div>
   </body>
 </html>
-<!-- <script defer type="module" src="src/js/module.js"></script> -->
+<script defer src="dist/treeator.min.js"></script>
+<script defer src="/node_modules/inputator/dist/inputator.js"></script>
 <script type="module">
-
-  import treeator from '/src/js/module.js';
-  import inputjs from '/node_modules/@joshadams/inputjs/src/js/module.js';
 
   let data = [];
 
@@ -109,7 +107,7 @@
   };
 
   // test tree creation
-  inputjs.init(inputOptions);
+  inputator.init(inputOptions);
   treeator.init(treeOptions);
 
   // test append function
